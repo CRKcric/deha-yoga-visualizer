@@ -1,0 +1,199 @@
+/* ============================================================
+   DEHA — SHARED STYLESHEET
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Nunito:wght@300;400;500;600&display=swap');
+
+/* ── Design Tokens ── */
+:root {
+  --r1: #CF9B98;
+  --r2: #D4A3A5;
+  --r3: #AE7C7E;
+  --r4: #B07E7D;
+  --r5: #8D5E5E;
+  --gold:      #D4AF37;
+  --gold-glow: #E6C65C;
+  --gold-dim:  #B8962A;
+  --gold-pale: rgba(212,175,55,0.12);
+
+  --bg-page:   #F4EAE7;
+  --bg-cream:  #FBF5F3;
+  --bg-section:#EDE1DE;
+  --bg-dark:   #321A1A;
+  --bg-darker: #261414;
+
+  --text-dark:  #2A1818;
+  --text-body:  #5C3C3C;
+  --text-muted: #9A7070;
+  --text-light: #BFA0A0;
+
+  --border-rose: rgba(174,124,126,0.22);
+  --border-gold: rgba(212,175,55,0.38);
+
+  --shadow-sm: 0 2px 14px rgba(141,94,94,0.10);
+  --shadow-md: 0 6px 30px rgba(141,94,94,0.14);
+  --shadow-lg: 0 12px 48px rgba(141,94,94,0.18);
+
+  --radius:    16px;
+  --radius-lg: 20px;
+  --tr: 0.28s ease;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg-page);
+  color: var(--text-dark);
+  font-weight: 400;
+  line-height: 1.65;
+  overflow-x: hidden;
+}
+
+img { display: block; max-width: 100%; }
+a   { text-decoration: none; color: inherit; }
+button { font-family: 'Nunito', sans-serif; cursor: pointer; border: none; }
+input, select, textarea { font-family: 'Nunito', sans-serif; }
+
+/* ── Shared typography ── */
+h1, h2, h3, h4 {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500;
+  line-height: 1.15;
+  color: var(--r5);
+}
+
+/* ── Gold Divider ── */
+.gold-divider {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 80px;
+  gap: 0;
+  overflow: visible;
+}
+.gold-divider::before {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dim) 30%, var(--gold) 60%, var(--gold-dim) 80%, transparent);
+}
+.gold-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dim) 30%, var(--gold) 60%, var(--gold-dim) 80%, transparent);
+}
+.gold-divider-gem {
+  width: 8px;
+  height: 8px;
+  background: var(--gold);
+  transform: rotate(45deg);
+  flex-shrink: 0;
+  margin: 0 16px;
+  box-shadow: 0 0 6px rgba(212,175,55,0.5);
+}
+
+/* ── Section ── */
+.section-wrap { padding: 68px 80px; position: relative; }
+
+.section-eyebrow {
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.8rem, 2.8vw, 2.6rem);
+  font-weight: 500;
+  color: var(--r5);
+  margin-bottom: 8px;
+}
+.section-title em { font-style: italic; color: var(--r3); }
+
+/* ── Decorative gold dot corners ── */
+.deco-corners { position: absolute; inset: 0; pointer-events: none; }
+.deco-corners::before,
+.deco-corners::after {
+  content: '';
+  position: absolute;
+  width: 40px; height: 40px;
+}
+.deco-corners::before {
+  top: 16px; left: 16px;
+  border-top: 1.5px solid rgba(212,175,55,0.4);
+  border-left: 1.5px solid rgba(212,175,55,0.4);
+}
+.deco-corners::after {
+  bottom: 16px; right: 16px;
+  border-bottom: 1.5px solid rgba(212,175,55,0.4);
+  border-right: 1.5px solid rgba(212,175,55,0.4);
+}
+
+/* ── SVG pattern tile (subtle background fill) ── */
+.pattern-bg {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='20' cy='20' r='1' fill='%23D4AF37' opacity='0.12'/%3E%3Cpath d='M0 20 Q10 10 20 20 Q30 30 40 20' stroke='%23D4AF37' stroke-width='0.4' fill='none' opacity='0.07'/%3E%3C/svg%3E");
+  background-size: 40px 40px;
+}
+
+/* ── Buttons ── */
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 13px 34px; border-radius: 50px;
+  background: var(--r5); color: #fff;
+  font-size: 0.9rem; font-weight: 600; letter-spacing: 0.05em;
+  box-shadow: 0 4px 18px rgba(141,94,94,0.28);
+  transition: background var(--tr), box-shadow var(--tr), transform var(--tr);
+}
+.btn-primary:hover {
+  background: var(--r3);
+  box-shadow: 0 6px 26px rgba(141,94,94,0.36);
+  transform: translateY(-2px);
+}
+
+.btn-gold {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 30px; border-radius: 50px;
+  background: var(--gold); color: #1a1000;
+  font-size: 0.9rem; font-weight: 700; letter-spacing: 0.04em;
+  box-shadow: 0 4px 16px rgba(212,175,55,0.32);
+  transition: background var(--tr), box-shadow var(--tr), transform var(--tr);
+}
+.btn-gold:hover {
+  background: var(--gold-glow);
+  box-shadow: 0 6px 22px rgba(212,175,55,0.44);
+  transform: translateY(-1px);
+}
+
+.btn-ghost {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 11px 26px; border-radius: 50px;
+  background: transparent; color: var(--r5);
+  font-size: 0.88rem; font-weight: 500;
+  border: 1.5px solid var(--border-rose);
+  transition: border-color var(--tr), background var(--tr), color var(--tr);
+}
+.btn-ghost:hover {
+  border-color: var(--r3);
+  background: rgba(174,124,126,0.08);
+  color: var(--r3);
+}
+
+/* ── Reveal animation ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Responsive ── */
+@media (max-width: 1024px) { .section-wrap { padding: 56px 40px; } }
+@media (max-width: 768px)  { .section-wrap { padding: 48px 24px; } }
+@media (max-width: 480px)  { .section-wrap { padding: 38px 16px; } }

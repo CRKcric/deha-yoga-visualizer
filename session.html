@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deha</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="session.css" />
+</head>
+<body class="session-body">
+
+  <!-- ═══════════════════════════════════════
+       TOP BAR
+  ═══════════════════════════════════════ -->
+  <div id="topbar">
+    <a href="index.html" class="topbar-logo"><img src="assets/logo.png" alt="Deha Logo"></a>
+    <div class="topbar-status" id="topbarStatus">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="statusText">Ready</span>
+    </div>
+    <a href="index.html" class="topbar-back">Back to Home</a>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       MAIN SPLIT LAYOUT
+  ═══════════════════════════════════════ -->
+  <main class="session-main">
+
+    <!-- ─── LEFT 70%: CAMERA ─── -->
+    <div class="camera-col" id="cameraCol">
+
+      <!-- Pre-session placeholder -->
+      <div class="camera-placeholder" id="cameraPlaceholder">
+        <div class="placeholder-inner">
+          <div class="ph-icon">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="10" width="44" height="30" rx="6" stroke="#AE7C7E" stroke-width="1.8" fill="none"/>
+              <circle cx="24" cy="25" r="9" stroke="#AE7C7E" stroke-width="1.8" fill="none"/>
+              <circle cx="24" cy="25" r="4" fill="#D4AF37" opacity="0.6"/>
+              <path d="M16 10 L19 5 H29 L32 10" stroke="#AE7C7E" stroke-width="1.8" stroke-linejoin="round" fill="none"/>
+              <circle cx="39" cy="16" r="2" fill="#D4AF37" opacity="0.7"/>
+            </svg>
+          </div>
+          <h2 class="ph-title">Camera will activate here</h2>
+          <p class="ph-desc">Fill in the controls on the right, then click <strong>Start Session</strong> to begin your practice.</p>
+          <!-- Gold dot-grid decorative pattern -->
+          <div class="ph-pattern"></div>
+        </div>
+        <!-- Corner accents -->
+        <div class="cam-corner cam-tl"></div>
+        <div class="cam-corner cam-tr"></div>
+        <div class="cam-corner cam-bl"></div>
+        <div class="cam-corner cam-br"></div>
+      </div>
+
+      <!-- Live camera feed -->
+      <div class="camera-live" id="cameraLive" style="display:none">
+        <video id="videoEl" autoplay playsinline muted></video>
+        <canvas id="skeletonCanvas"></canvas>
+
+        <!-- Overlay corners -->
+        <div class="cam-corner cam-tl"></div>
+        <div class="cam-corner cam-tr"></div>
+        <div class="cam-corner cam-bl"></div>
+        <div class="cam-corner cam-br"></div>
+
+        <!-- Live badge -->
+        <div class="live-badge">
+          <span class="live-dot"></span>
+          Live
+        </div>
+
+        <!-- Name tag -->
+        <div class="camera-nametag" id="cameraNametag" style="display:none"></div>
+
+        <!-- Stop button -->
+        <button class="btn-stop-cam" id="btnStop" onclick="openStopModal()">Stop Session</button>
+      </div>
+
+    </div>
+
+    <!-- ─── RIGHT 30%: CONTROLS + FEEDBACK ─── -->
+    <div class="controls-col" id="controlsCol">
+
+      <!-- Control panel -->
+      <div class="ctrl-panel" id="ctrlPanel">
+        <div class="ctrl-panel-header">
+          <h3 class="ctrl-title">Session Controls</h3>
+        </div>
+        <div class="ctrl-panel-body">
+
+          <!-- Name input -->
+          <div class="ctrl-field">
+            <label class="ctrl-label" for="nameInput">Your name <span class="ctrl-optional">(optional)</span></label>
+            <div class="ctrl-name-row">
+              <input
+                type="text"
+                id="nameInput"
+                class="ctrl-input"
+                placeholder="e.g. Priya"
+                maxlength="28"
+                autocomplete="off"
+              />
+              <button class="ctrl-check-btn" id="checkNameBtn" onclick="confirmName()" title="Confirm name">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M3 8.5L6.5 12L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+            <div class="ctrl-name-confirmed" id="nameConfirmed" style="display:none">
+              Name set: <strong id="nameDisplay"></strong>
+            </div>
+          </div>
+
+          <!-- Pose selection -->
+          <div class="ctrl-field">
+            <label class="ctrl-label" for="poseSelect">Select a pose</label>
+            <div class="ctrl-select-wrap">
+              <select id="poseSelect" class="ctrl-select" onchange="onPoseChange()">
+                <option value="">— Choose a pose —</option>
+                <optgroup label="Standing">
+                  <option value="mountain">Mountain Pose (Tadasana)</option>
+                  <option value="warrior1">Warrior I (Virabhadrasana I)</option>
+                  <option value="warrior2">Warrior II (Virabhadrasana II)</option>
+                  <option value="tree">Tree Pose (Vrksasana)</option>
+                  <option value="triangle">Triangle Pose (Trikonasana)</option>
+                </optgroup>
+                <optgroup label="Balance">
+                  <option value="eagle">Eagle Pose (Garudasana)</option>
+                  <option value="dancer">Dancer's Pose (Natarajasana)</option>
+                  <option value="crow">Crow Pose (Bakasana)</option>
+                </optgroup>
+                <optgroup label="Floor">
+                  <option value="child">Child's Pose (Balasana)</option>
+                  <option value="lotus">Lotus Pose (Padmasana)</option>
+                  <option value="seated">Seated Forward Fold</option>
+                </optgroup>
+              </select>
+              <span class="ctrl-select-arrow">&#8964;</span>
+            </div>
+          </div>
+
+          <!-- Pose brief -->
+          <div class="pose-brief" id="poseBrief" style="display:none">
+            <div class="pose-brief-name" id="poseBriefName"></div>
+            <div class="pose-brief-tip" id="poseBriefTip"></div>
+          </div>
+
+          <!-- Start button -->
+          <button class="btn-gold btn-start-session" id="btnStart" onclick="startSession()" disabled>
+            Start Session
+          </button>
+          <p class="start-note">Select a pose above to begin</p>
+
+        </div>
+      </div>
+
+      <!-- ─── FEEDBACK PANEL (shown during session) ─── -->
+      <div class="feedback-panel" id="feedbackPanel" style="display:none">
+        <div class="feedback-header">
+          <h3 class="feedback-title">Live Feedback</h3>
+          <div class="feedback-score-pill" id="scorePill">—</div>
+        </div>
+
+        <div class="feedback-slots" id="feedbackSlots">
+          <div class="feedback-slot empty" id="slot0">
+            <div class="slot-empty-text">Warming up…</div>
+          </div>
+          <div class="feedback-slot empty" id="slot1"></div>
+          <div class="feedback-slot empty" id="slot2"></div>
+        </div>
+
+        <div class="feedback-pose-indicator">
+          <span class="fpi-label">Pose:</span>
+          <span class="fpi-name" id="fpiName"></span>
+        </div>
+      </div>
+
+      <!-- ─── SUMMARY PANEL (shown after session ends) ─── -->
+      <div class="summary-panel" id="summaryPanel" style="display:none">
+        <div class="summary-header">
+          <h3 class="summary-title">Session Summary</h3>
+        </div>
+        <div class="summary-body">
+          <p class="summary-congrats" id="summaryCongrats"></p>
+          <div class="summary-stats">
+            <div class="sum-stat">
+              <div class="sum-val" id="sumAccuracy"></div>
+              <div class="sum-key">Overall Accuracy</div>
+            </div>
+            <div class="sum-stat">
+              <div class="sum-val" id="sumStability"></div>
+              <div class="sum-key">Stability Score</div>
+            </div>
+            <div class="sum-stat">
+              <div class="sum-val" id="sumDuration"></div>
+              <div class="sum-key">Duration</div>
+            </div>
+            <div class="sum-stat">
+              <div class="sum-val" id="sumPose"></div>
+              <div class="sum-key">Pose Practiced</div>
+            </div>
+          </div>
+          <div class="sum-highlight" id="sumHighlight"></div>
+          <button class="btn-gold sum-new-btn" onclick="resetSession()">Start New Session</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════
+       STOP CONFIRMATION MODAL
+  ═══════════════════════════════════════ -->
+  <div class="modal-overlay" id="stopModal">
+    <div class="modal-box">
+      <div class="modal-icon">
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+          <circle cx="18" cy="18" r="16" stroke="#AE7C7E" stroke-width="1.5"/>
+          <rect x="13" y="13" width="4" height="10" rx="1.5" fill="#8D5E5E"/>
+          <rect x="19" y="13" width="4" height="10" rx="1.5" fill="#8D5E5E"/>
+        </svg>
+      </div>
+      <h3 class="modal-title">End Session?</h3>
+      <p class="modal-text">Your progress will be summarised below. The camera will stop once you confirm.</p>
+      <div class="modal-actions">
+        <button class="btn-ghost modal-cancel" onclick="closeStopModal()">Cancel</button>
+        <button class="btn-gold modal-confirm" onclick="confirmStop()">End Session</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="session.js"></script>
+</body>
+</html>
