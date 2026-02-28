@@ -3,6 +3,23 @@
    ============================================================ */
 
 (function () {
+   const navAuthBtn = document.getElementById('navAuthBtn');
+   if (navAuthBtn) {
+    try {
+        const auth = JSON.parse(localStorage.getItem('deha_auth'));
+        if (auth && auth.loggedIn) 
+            {
+            navAuthBtn.textContent = 'Sign Out';
+            navAuthBtn.href = '#';
+            navAuthBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                localStorage.removeItem('deha_auth');
+                navAuthBtn.textContent = 'Sign In';
+                navAuthBtn.href = 'auth.html';
+                 });
+            }
+        } catch (e) {}
+    }
   'use strict';
 
   /* ── Navbar scroll shadow ── */

@@ -77,6 +77,18 @@
   background: rgba(207,155,152,0.08);
 }
 
+.topbar-profile-icon {
+  display: flex; align-items: center; justify-content: center;
+  transition: transform var(--tr);
+}
+.topbar-profile-icon:hover { 
+    transform: scale(1.12); 
+}
+
+.topbar-profile-icon:hover svg circle:first-child {
+     stroke: #E6C65C; 
+}
+
 /* ── MAIN SPLIT ── */
 .session-main {
   display: flex;

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deha — Profile</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="profile.css" />
+</head>
+<body class="profile-body">
+
+  <!-- ═══════════════════════════════════════
+       NAVBAR
+  ═══════════════════════════════════════ -->
+  <nav id="navbar">
+    <a href="index.html" class="nav-logo">
+      <img src="assets/logo.png" alt="Deha Logo" />
+    </a>
+    <ul class="nav-links">
+      <li><a href="session.html">Session</a></li>
+      <li><a href="index.html#guide">Guide</a></li>
+      <li><a href="index.html#about">About</a></li>
+      <li><a href="profile.html" class="nav-profile-icon nav-active" aria-label="Profile">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="16" cy="16" r="14.5" stroke="#D4AF37" stroke-width="1.5"/>
+          <circle cx="16" cy="12" r="4.5" stroke="#8D5E5E" stroke-width="1.5" fill="none"/>
+          <path d="M7 26c0-4.418 4.03-8 9-8s9 3.582 9 8" stroke="#8D5E5E" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        </svg>
+      </a></li>
+    </ul>
+  </nav>
+
+  <div class="profile-page">
+
+    <!-- ═══════════════════════════════════════
+         LEFT COLUMN — Profile card + edit
+    ═══════════════════════════════════════ -->
+    <aside class="profile-aside">
+
+      <!-- Avatar + identity -->
+      <div class="profile-card">
+        <div class="profile-avatar" id="profileAvatar">D</div>
+        <div class="profile-identity">
+          <div class="profile-name" id="profileNameDisplay">Deha User</div>
+          <div class="profile-email" id="profileEmailDisplay">—</div>
+        </div>
+
+        <div class="profile-divider"></div>
+
+        <!-- Edit form -->
+        <form class="profile-form" id="profileForm" onsubmit="saveProfile(event)">
+
+          <div class="pf-field">
+            <label class="pf-label" for="pfUsername">Username <span class="pf-required">*</span></label>
+            <input type="text" id="pfUsername" class="pf-input" placeholder="e.g. Aanya" maxlength="28" required />
+          </div>
+
+          <div class="pf-field">
+            <label class="pf-label" for="pfEmail">Email <span class="pf-optional">(optional)</span></label>
+            <input type="email" id="pfEmail" class="pf-input" placeholder="you@email.com" />
+          </div>
+
+          <div class="pf-field">
+            <label class="pf-label">Gender <span class="pf-optional">(optional)</span></label>
+            <div class="pf-gender-group">
+              <label class="pf-gender-opt"><input type="radio" name="gender" value="female" /> Female</label>
+              <label class="pf-gender-opt"><input type="radio" name="gender" value="male" /> Male</label>
+              <label class="pf-gender-opt"><input type="radio" name="gender" value="other" /> Other</label>
+              <label class="pf-gender-opt"><input type="radio" name="gender" value="prefer_not" checked /> Prefer not to say</label>
+            </div>
+          </div>
+
+          <div class="pf-field">
+            <label class="pf-label" for="pfHeight">Height <span class="pf-optional">(optional — helps with pose calibration)</span></label>
+            <div class="pf-height-row">
+              <input type="number" id="pfHeight" class="pf-input pf-input-sm" placeholder="e.g. 165" min="100" max="220" />
+              <span class="pf-unit">cm</span>
+            </div>
+          </div>
+
+          <div class="pf-privacy-note">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1.5C4.3 1.5 2.5 3.3 2.5 5.5V7H2a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1h-.5V5.5C10.5 3.3 8.7 1.5 6.5 1.5Z" stroke="#B8962A" stroke-width="1" fill="none"/></svg>
+            Your information is stored only on this device and never shared.
+          </div>
+          <button type="button" class="pf-clear-btn" onclick="clearProfile()">Clear Data</button>
+          <button type="submit" class="btn-gold pf-save-btn">Save Profile</button>
+          <div class="pf-saved-msg" id="pfSavedMsg" style="display:none">Profile saved successfully.</div>
+
+        </form>
+      </div>
+
+    </aside>
+
+    <!-- ═══════════════════════════════════════
+         RIGHT COLUMN — Stats + History
+    ═══════════════════════════════════════ -->
+    <div class="profile-main">
+
+      <!-- Stats row -->
+      <div class="stats-row reveal">
+        <div class="stat-card">
+          <div class="stat-val" id="statTotalSessions">0</div>
+          <div class="stat-key">Total Sessions</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="statStreak">0</div>
+          <div class="stat-key">Day Streak</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="statAvgAccuracy">—</div>
+          <div class="stat-key">Avg Accuracy</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="statFavPose">—</div>
+          <div class="stat-key">Most Practiced</div>
+        </div>
+      </div>
+
+      <!-- divider -->
+      <div class="gold-divider profile-divider-line"><div class="gold-divider-gem"></div></div>
+
+      <!-- Last session summary -->
+      <div class="section-block reveal" id="lastSessionBlock" style="display:none">
+        <div class="block-header">
+          <div class="section-eyebrow">Recent</div>
+          <h2 class="block-title">Last Session</h2>
+        </div>
+        <div class="last-session-card" id="lastSessionCard"></div>
+      </div>
+
+      <!-- divider -->
+      <div class="gold-divider profile-divider-line" id="patternDivider" style="display:none"><div class="gold-divider-gem"></div></div>
+
+      <!-- Pattern analysis -->
+      <div class="section-block reveal" id="patternBlock" style="display:none">
+        <div class="block-header">
+          <div class="section-eyebrow">Insights</div>
+          <h2 class="block-title">Your Practice Patterns</h2>
+          <p class="block-desc">Based on your session history, here's what we've noticed about your practice.</p>
+        </div>
+        <div class="pattern-cards" id="patternCards"></div>
+      </div>
+
+      <!-- divider -->
+      <div class="gold-divider profile-divider-line" id="historyDivider" style="display:none"><div class="gold-divider-gem"></div></div>
+
+      <!-- Session history -->
+      <div class="section-block reveal" id="historyBlock" style="display:none">
+        <div class="block-header">
+          <div class="section-eyebrow">History</div>
+          <h2 class="block-title">All Sessions</h2>
+        </div>
+        <div class="history-list" id="historyList"></div>
+      </div>
+
+      <!-- Empty state -->
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon">
+          <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+            <circle cx="26" cy="26" r="24" stroke="#D4A3A5" stroke-width="1.5" stroke-dasharray="4 6"/>
+            <path d="M26 16v10l6 4" stroke="#AE7C7E" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3 class="empty-title">No sessions yet</h3>
+        <p class="empty-desc">Complete your first session and your history will appear here.</p>
+        <a href="session.html" class="btn-primary">Start a Session</a>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="profile.js"></script>
+</body>
+</html>

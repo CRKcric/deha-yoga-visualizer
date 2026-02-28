@@ -182,20 +182,6 @@
   const fpiName         = document.getElementById('fpiName');
   const scorePill       = document.getElementById('scorePill');
 
-  /* ── Confirm name ── */
-  window.confirmName = function () {
-    const val = nameInput.value.trim();
-    if (val) {
-      confirmedName = val;
-      nameDisplay.textContent = val;
-      nameConfirmed.style.display = 'block';
-    }
-  };
-
-  nameInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') window.confirmName();
-  });
-
   /* ── Pose change ── */
   window.onPoseChange = function () {
     selectedPose = poseSelect.value;
@@ -225,7 +211,11 @@
       videoEl.srcObject = stream;
 
       // Name
-      confirmedName = confirmedName || nameInput.value.trim();
+      try {
+        const p = JSON.parse(localStorage.getItem('deha_profile'));
+        confirmedName = p?.username || '';
+    } catch (e) { confirmedName = ''; }
+
       const nametag = document.getElementById('cameraNametag');
       if (confirmedName) {
         nametag.textContent = confirmedName;

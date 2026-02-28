@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deha — Welcome</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="auth.css" />
+</head>
+<body class="auth-body">
+
+  <div class="flip-scene" id="flipScene">
+    <div class="flip-card" id="flipCard">
+
+      <!-- ══════════════════════════════════
+           FRONT — SIGN IN
+      ══════════════════════════════════ -->
+      <div class="flip-face flip-front">
+        <div class="split-layout">
+
+          <!-- 60% left: image panel -->
+          <div class="panel-visual pv-login">
+            <img src="https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?w=1400&q=80&auto=format&fit=crop" alt="" class="panel-img" />
+            <div class="panel-overlay po-login"></div>
+
+            <div class="sparkles">
+              <span class="sp sp1"></span><span class="sp sp2"></span>
+              <span class="sp sp3"></span><span class="sp sp4"></span>
+              <span class="sp sp5"></span><span class="sp sp6"></span>
+              <span class="sp sp7"></span><span class="sp sp8"></span>
+            </div>
+            <div class="orb o1"></div>
+            <div class="orb o2"></div>
+            <div class="orb o3"></div>
+
+            <div class="panel-content">
+              <a href="index.html" class="panel-logo">
+                <img src="assets/logo.png" alt="Deha" class="panel-logo-img"
+                  onerror="this.style.display='none';this.nextElementSibling.style.display='block'" />
+                <span class="panel-logo-fallback" style="display:none">Deha</span>
+              </a>
+              <blockquote class="panel-quote">
+                <p>"The body is the bow,<br>the asana is the arrow,<br>the soul is the target."</p>
+                <cite>— B.K.S. Iyengar</cite>
+              </blockquote>
+              <div class="panel-toggle">
+                <p class="toggle-nudge">Oh hey — don't have an account yet? Oops!</p>
+                <button class="toggle-btn" onclick="doFlip()">Create one &nbsp;→</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 40% right: form -->
+          <div class="panel-form pf-login">
+            <div class="form-inner">
+              <p class="form-eyebrow">Welcome back</p>
+              <h2 class="form-title">Sign In</h2>
+              <p class="form-sub">Pick up where you left off.</p>
+
+              <form onsubmit="handleLogin(event)">
+                <div class="auth-field">
+                  <label class="auth-label" for="loginEmail">Email</label>
+                  <input type="email" id="loginEmail" class="auth-input" placeholder="you@email.com" required autocomplete="email" />
+                </div>
+                <div class="auth-field">
+                  <label class="auth-label" for="loginPassword">Password</label>
+                  <div class="auth-input-wrap">
+                    <input type="password" id="loginPassword" class="auth-input" placeholder="Your password" required autocomplete="current-password" />
+                    <button type="button" class="auth-eye-btn" onclick="togglePassword('loginPassword',this)">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5Z" stroke="currentColor" stroke-width="1.3" fill="none"/><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.3" fill="none"/></svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="auth-error" id="loginError" style="display:none"></div>
+                <button type="submit" class="auth-submit-btn btn-gold">
+                  Sign In
+                  <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M3 7.5h9M8.5 4l3.5 3.5L8.5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+              </form>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════
+           BACK — SIGN UP
+      ══════════════════════════════════ -->
+      <div class="flip-face flip-back">
+        <div class="split-layout split-reversed">
+
+          <!-- 40% left: form -->
+          <div class="panel-form pf-signup">
+            <div class="form-inner">
+              <p class="form-eyebrow">New here</p>
+              <h2 class="form-title">Create Account</h2>
+              <p class="form-sub">Your practice begins here.</p>
+
+              <form onsubmit="handleSignup(event)">
+                <div class="auth-field">
+                  <label class="auth-label" for="signupEmail">Email <span class="auth-required">*</span></label>
+                  <input type="email" id="signupEmail" class="auth-input" placeholder="you@email.com" required autocomplete="email" />
+                </div>
+                <div class="auth-field">
+                  <label class="auth-label" for="signupPassword">Password <span class="auth-required">*</span></label>
+                  <div class="auth-input-wrap">
+                    <input type="password" id="signupPassword" class="auth-input" placeholder="Minimum 8 characters" required minlength="8" autocomplete="new-password" />
+                    <button type="button" class="auth-eye-btn" onclick="togglePassword('signupPassword',this)">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5Z" stroke="currentColor" stroke-width="1.3" fill="none"/><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.3" fill="none"/></svg>
+                    </button>
+                  </div>
+                  <div class="auth-strength-bar"><div class="auth-strength-fill" id="strengthFill"></div></div>
+                  <div class="auth-strength-label" id="strengthLabel"></div>
+                </div>
+                <div class="auth-field">
+                  <label class="auth-label" for="signupConfirm">Confirm Password <span class="auth-required">*</span></label>
+                  <div class="auth-input-wrap">
+                    <input type="password" id="signupConfirm" class="auth-input" placeholder="Repeat your password" required autocomplete="new-password" />
+                    <button type="button" class="auth-eye-btn" onclick="togglePassword('signupConfirm',this)">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5Z" stroke="currentColor" stroke-width="1.3" fill="none"/><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.3" fill="none"/></svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="auth-privacy-note">
+                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1.5C4.3 1.5 2.5 3.3 2.5 5.5V7H2a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1h-.5V5.5C10.5 3.3 8.7 1.5 6.5 1.5Z" stroke="#B8962A" stroke-width="1" fill="none"/></svg>
+                  Your data stays on this device. Never shared or sold.
+                </div>
+                <div class="auth-error" id="signupError" style="display:none"></div>
+                <button type="submit" class="auth-submit-btn auth-submit-signup">
+                  Create Account
+                  <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M3 7.5h9M8.5 4l3.5 3.5L8.5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- 60% right: image panel -->
+          <div class="panel-visual pv-signup">
+            <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=1400&q=80&auto=format&fit=crop" alt="" class="panel-img" />
+            <div class="panel-overlay po-signup"></div>
+
+            <div class="bubbles">
+              <span class="bb bb1"></span><span class="bb bb2"></span>
+              <span class="bb bb3"></span><span class="bb bb4"></span>
+              <span class="bb bb5"></span><span class="bb bb6"></span>
+              <span class="bb bb7"></span>
+            </div>
+            <div class="orb os1"></div>
+            <div class="orb os2"></div>
+            <div class="orb os3"></div>
+
+            <div class="panel-content panel-content-right">
+              <a href="index.html" class="panel-logo">
+                <img src="assets/logo.png" alt="Deha" class="panel-logo-img"
+                  onerror="this.style.display='none';this.nextElementSibling.style.display='block'" />
+                <span class="panel-logo-fallback" style="display:none">Deha</span>
+              </a>
+              <blockquote class="panel-quote">
+                <p>"Yoga is the journey<br>of the self, through the self,<br>to the self."</p>
+                <cite>— The Bhagavad Gita</cite>
+              </blockquote>
+              <div class="panel-toggle">
+                <p class="toggle-nudge">Wait — think I have an account already!</p>
+                <button class="toggle-btn toggle-btn-signup" onclick="doFlip()">← &nbsp;Sign in instead</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <a href="index.html" class="auth-home-link">← Back to home</a>
+
+  <script src="auth.js"></script>
+</body>
+</html>
