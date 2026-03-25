@@ -636,7 +636,7 @@ import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/fir
     ctx.clearRect(0, 0, W, H);
     if (!landmarks.length) return;
 
-    const px = (lm) => [lm.x * W, lm.y * H];
+    const px = (lm) => [(1 - lm.x) * W, lm.y * H];
 
     connections.forEach(([a, b]) => {
       const ia = LANDMARK_NAME_TO_IDX[a];
