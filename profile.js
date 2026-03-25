@@ -3,8 +3,8 @@
    ============================================================ */
 
 import { auth, db } from './firebase.js';
-import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-import { collection, getDocs, orderBy, query, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import { onAuthStateChanged, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { collection, getDocs, orderBy, query, doc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 (function () {
   'use strict';
@@ -15,10 +15,7 @@ import { collection, getDocs, orderBy, query, doc, setDoc, getDoc } from "https:
      AUTH — redirect if not logged in
   ───────────────────────────────────────── */
   onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      window.location.href = 'auth.html';
-      return;
-    }
+    if (!user) { window.location.href = 'auth.html'; return; }
     currentUser = user;
     document.getElementById('profileEmailDisplay').textContent = user.email || '—';
     await loadProfileFromFirestore(user.uid);
@@ -35,6 +32,43 @@ import { collection, getDocs, orderBy, query, doc, setDoc, getDoc } from "https:
   };
 
   /* ─────────────────────────────────────────
+     DELETE ACCOUNT
+  ───────────────────────────────────────── */
+  window.openDeleteModal  = () => document.getElementById('deleteModal').classList.add('open');
+  window.closeDeleteModal = () => document.getElementById('deleteModal').classList.remove('open');
+
+  window.deleteAccount = async function () {
+    if (!currentUser) return;
+    const btn = document.querySelector('.pf-delete-confirm-btn');
+    btn.textContent = 'Deleting…';
+    btn.disabled = true;
+
+    try {
+      // Delete all sessions
+      const snap = await getDocs(collection(db, 'users', currentUser.uid, 'sessions'));
+      await Promise.all(snap.docs.map(d => deleteDoc(doc(db, 'users', currentUser.uid, 'sessions', d.id))));
+
+      // Delete profile doc
+      await deleteDoc(doc(db, 'users', currentUser.uid, 'profile', 'data'));
+
+      // Delete Firebase Auth account
+      await deleteUser(currentUser);
+
+      window.location.href = 'auth.html';
+    } catch (err) {
+      console.error('[Deha] Delete failed:', err);
+      if (err.code === 'auth/requires-recent-login') {
+        alert('For security, please sign out and sign back in before deleting your account.');
+        closeDeleteModal();
+      } else {
+        alert('Something went wrong. Please try again.');
+      }
+      btn.textContent = 'Yes, Delete';
+      btn.disabled = false;
+    }
+  };
+
+  /* ─────────────────────────────────────────
      PROFILE FORM — LOAD & SAVE (Firestore)
   ───────────────────────────────────────── */
   async function loadProfileFromFirestore(uid) {
@@ -43,24 +77,18 @@ import { collection, getDocs, orderBy, query, doc, setDoc, getDoc } from "https:
       if (snap.exists()) {
         const p = snap.data();
         if (p.username) {
-          document.getElementById('pfUsername').value           = p.username;
+          document.getElementById('pfUsername').value              = p.username;
           document.getElementById('profileNameDisplay').textContent = p.username;
-          document.getElementById('profileAvatar').textContent  = p.username.charAt(0).toUpperCase();
+          document.getElementById('profileAvatar').textContent     = p.username.charAt(0).toUpperCase();
         }
-        if (p.email) {
-          document.getElementById('pfEmail').value = p.email;
-        }
-        if (p.height) {
-          document.getElementById('pfHeight').value = p.height;
-        }
+        if (p.email)   document.getElementById('pfEmail').value  = p.email;
+        if (p.height)  document.getElementById('pfHeight').value = p.height;
         if (p.gender) {
           const radio = document.querySelector(`input[name="gender"][value="${p.gender}"]`);
           if (radio) radio.checked = true;
         }
       }
-    } catch (err) {
-      console.error('[Deha] Failed to load profile:', err);
-    }
+    } catch (err) { console.error('[Deha] Failed to load profile:', err); }
   }
 
   window.saveProfile = async function (e) {
@@ -72,24 +100,17 @@ import { collection, getDocs, orderBy, query, doc, setDoc, getDoc } from "https:
     const height   = document.getElementById('pfHeight').value.trim();
     const genderEl = document.querySelector('input[name="gender"]:checked');
     const gender   = genderEl ? genderEl.value : 'prefer_not';
-
     if (!username) return;
 
     try {
-      await setDoc(doc(db, 'users', currentUser.uid, 'profile', 'data'), {
-        username, email, gender, height
-      });
-
-      document.getElementById('profileNameDisplay').textContent = username;
+      await setDoc(doc(db, 'users', currentUser.uid, 'profile', 'data'), { username, email, gender, height });
+      document.getElementById('profileNameDisplay').textContent  = username;
       document.getElementById('profileEmailDisplay').textContent = email || currentUser.email || '—';
-      document.getElementById('profileAvatar').textContent = username.charAt(0).toUpperCase();
-
+      document.getElementById('profileAvatar').textContent       = username.charAt(0).toUpperCase();
       const msg = document.getElementById('pfSavedMsg');
       msg.style.display = 'block';
       setTimeout(() => { msg.style.display = 'none'; }, 2800);
-    } catch (err) {
-      console.error('[Deha] Failed to save profile:', err);
-    }
+    } catch (err) { console.error('[Deha] Failed to save profile:', err); }
   };
 
   window.clearProfile = async function () {
@@ -97,9 +118,7 @@ import { collection, getDocs, orderBy, query, doc, setDoc, getDoc } from "https:
     try {
       await setDoc(doc(db, 'users', currentUser.uid, 'profile', 'data'), {});
       location.reload();
-    } catch (err) {
-      console.error('[Deha] Failed to clear profile:', err);
-    }
+    } catch (err) { console.error('[Deha] Failed to clear profile:', err); }
   };
 
   /* ─────────────────────────────────────────
@@ -113,15 +132,15 @@ import { collection, getDocs, orderBy, query, doc, setDoc, getDoc } from "https:
       const sessions = snap.docs.map(d => {
         const data = d.data();
         return {
-          id:           d.id,
-          pose:         data.pose        || '—',
-          score:        data.accuracy    || 0,
-          stability:    data.stability   || 0,
-          duration:     data.durationSecs || 0,
-          durationStr:  data.duration    || '—',
-          topArea:      data.topArea     || 'None',
-          timestamp:    data.createdAt?.toMillis() || Date.now(),
-          feedback:     generateFeedbackText(data.pose, data.accuracy, [data.topArea]),
+          id:            d.id,
+          pose:          data.pose        || '—',
+          score:         data.accuracy    || 0,
+          stability:     data.stability   || 0,
+          duration:      data.durationSecs || 0,
+          durationStr:   data.duration    || '—',
+          topArea:       data.topArea     || 'None',
+          timestamp:     data.createdAt?.toMillis() || Date.now(),
+          feedback:      generateFeedbackText(data.pose, data.accuracy, [data.topArea]),
           topCorrections: data.topArea ? [data.topArea] : [],
         };
       });
@@ -135,25 +154,17 @@ import { collection, getDocs, orderBy, query, doc, setDoc, getDoc } from "https:
         renderPatterns(sessions);
         renderHistory(sessions);
       }
-
     } catch (err) {
       console.error('[Deha] Failed to load sessions:', err);
       document.getElementById('emptyState').style.display = 'flex';
     }
   }
 
-  /* ─────────────────────────────────────────
-     FEEDBACK TEXT GENERATOR
-  ───────────────────────────────────────── */
   function generateFeedbackText(pose, score, areas) {
     const areaStr = (areas || []).filter(a => a && a !== 'None').join(' and ').toLowerCase();
-    if (score >= 80) {
-      return `Strong session with ${pose}. Your form was consistent and well-controlled throughout. Keep building on this stability.`;
-    } else if (score >= 65) {
-      return `Good effort in ${pose}. ${areaStr ? `Minor adjustments needed around ${areaStr} — focus on these in your next session.` : 'Keep refining your form.'}`;
-    } else {
-      return `${pose} needs more practice. ${areaStr ? `The main area to work on is ${areaStr}.` : 'Try slowing down and holding the pose longer.'} Build muscle memory with consistent practice.`;
-    }
+    if (score >= 80) return `Strong session with ${pose}. Your form was consistent throughout. Keep building on this stability.`;
+    if (score >= 65) return `Good effort in ${pose}. ${areaStr ? `Minor adjustments needed around ${areaStr}.` : 'Keep refining your form.'}`;
+    return `${pose} needs more practice. ${areaStr ? `Focus on ${areaStr}.` : 'Try holding the pose longer.'} Build muscle memory with consistent practice.`;
   }
 
   /* ─────────────────────────────────────────
@@ -161,33 +172,22 @@ import { collection, getDocs, orderBy, query, doc, setDoc, getDoc } from "https:
   ───────────────────────────────────────── */
   function renderStats(sessions) {
     document.getElementById('statTotalSessions').textContent = sessions.length;
-
     if (sessions.length > 0) {
       const avg = Math.round(sessions.reduce((s, x) => s + x.score, 0) / sessions.length);
       document.getElementById('statAvgAccuracy').textContent = avg + '%';
-    }
-
-    if (sessions.length > 0) {
       const poseCounts = {};
       sessions.forEach(s => { poseCounts[s.pose] = (poseCounts[s.pose] || 0) + 1; });
       const top = Object.entries(poseCounts).sort((a, b) => b[1] - a[1])[0];
-      const shortName = top[0].split(' ').slice(0, 2).join(' ');
-      document.getElementById('statFavPose').textContent = shortName;
+      document.getElementById('statFavPose').textContent = top[0].split(' ').slice(0, 2).join(' ');
     }
-
-    const streak = calcStreak(sessions);
-    document.getElementById('statStreak').textContent = streak;
+    document.getElementById('statStreak').textContent = calcStreak(sessions);
   }
 
   function calcStreak(sessions) {
     if (!sessions.length) return 0;
     const days = new Set(sessions.map(s => new Date(s.timestamp).toDateString()));
-    let streak = 0;
-    let d = new Date();
-    while (days.has(d.toDateString())) {
-      streak++;
-      d.setDate(d.getDate() - 1);
-    }
+    let streak = 0, d = new Date();
+    while (days.has(d.toDateString())) { streak++; d.setDate(d.getDate() - 1); }
     return streak;
   }
 
@@ -197,27 +197,13 @@ import { collection, getDocs, orderBy, query, doc, setDoc, getDoc } from "https:
   function renderLastSession(sessions) {
     if (!sessions.length) return;
     document.getElementById('lastSessionBlock').style.display = 'flex';
-
     const s   = sessions[0];
     const cls = s.score >= 75 ? 'good' : s.score >= 55 ? 'fair' : 'needs';
-
     document.getElementById('lastSessionCard').innerHTML = `
-      <div class="ls-item">
-        <div class="ls-label">Pose</div>
-        <div class="ls-val">${s.pose}</div>
-      </div>
-      <div class="ls-item">
-        <div class="ls-label">Accuracy</div>
-        <div class="ls-val ${cls}">${s.score}%</div>
-      </div>
-      <div class="ls-item">
-        <div class="ls-label">Stability</div>
-        <div class="ls-val">${s.stability}%</div>
-      </div>
-      <div class="ls-item">
-        <div class="ls-label">Duration</div>
-        <div class="ls-val">${s.durationStr || formatDuration(s.duration)}</div>
-      </div>
+      <div class="ls-item"><div class="ls-label">Pose</div><div class="ls-val">${s.pose}</div></div>
+      <div class="ls-item"><div class="ls-label">Accuracy</div><div class="ls-val ${cls}">${s.score}%</div></div>
+      <div class="ls-item"><div class="ls-label">Stability</div><div class="ls-val">${s.stability}%</div></div>
+      <div class="ls-item"><div class="ls-label">Duration</div><div class="ls-val">${s.durationStr || formatDuration(s.duration)}</div></div>
       <div class="ls-feedback">${s.feedback}</div>
     `;
   }
@@ -227,8 +213,7 @@ import { collection, getDocs, orderBy, query, doc, setDoc, getDoc } from "https:
   ───────────────────────────────────────── */
   function renderPatterns(sessions) {
     if (sessions.length < 2) return;
-
-    document.getElementById('patternBlock').style.display  = 'flex';
+    document.getElementById('patternBlock').style.display   = 'flex';
     document.getElementById('patternDivider').style.display = 'flex';
 
     const areaCounts = {};
@@ -238,72 +223,42 @@ import { collection, getDocs, orderBy, query, doc, setDoc, getDoc } from "https:
       });
     });
 
-    const sorted = Object.entries(areaCounts).sort((a, b) => b[1] - a[1]);
-    const total  = sessions.length;
-
+    const sorted    = Object.entries(areaCounts).sort((a, b) => b[1] - a[1]);
+    const total     = sessions.length;
     const mid       = Math.floor(sessions.length / 2);
-    const recentAvg = avg(sessions.slice(0, mid).map(s => s.score));
-    const olderAvg  = avg(sessions.slice(mid).map(s => s.score));
+    const recentAvg = avgArr(sessions.slice(0, mid).map(s => s.score));
+    const olderAvg  = avgArr(sessions.slice(mid).map(s => s.score));
     const improving = recentAvg > olderAvg + 3;
     const declining = recentAvg < olderAvg - 3;
 
     const patterns = [];
-
     sorted.slice(0, 2).forEach(([area, count]) => {
       const pct = Math.round((count / total) * 100);
-      patterns.push({
-        type: 'warn', area,
-        desc: `You frequently receive corrections for ${area.toLowerCase()} — appearing in ${pct}% of your sessions.`,
-        freq: pct,
-      });
+      patterns.push({ type: 'warn', area, desc: `You frequently receive corrections for ${area.toLowerCase()} — appearing in ${pct}% of sessions.`, freq: pct });
     });
 
-    if (improving) {
-      patterns.push({
-        type: 'good', area: 'Improving Trend',
-        desc: `Your accuracy has been climbing — recent sessions average ${Math.round(recentAvg)}% vs ${Math.round(olderAvg)}% earlier.`,
-        freq: Math.round(recentAvg),
-      });
-    } else if (declining) {
-      patterns.push({
-        type: 'warn', area: 'Score Dipping',
-        desc: `Recent sessions average ${Math.round(recentAvg)}% vs ${Math.round(olderAvg)}% earlier. Try shorter focused sessions.`,
-        freq: Math.round(recentAvg),
-      });
-    } else {
-      patterns.push({
-        type: 'info', area: 'Steady Practice',
-        desc: `Your scores are consistent — averaging ${Math.round(recentAvg)}%. Try pushing into harder poses to grow further.`,
-        freq: Math.round(recentAvg),
-      });
-    }
+    if (improving) patterns.push({ type: 'good', area: 'Improving Trend', desc: `Recent sessions average ${Math.round(recentAvg)}% vs ${Math.round(olderAvg)}% earlier. Keep it up!`, freq: Math.round(recentAvg) });
+    else if (declining) patterns.push({ type: 'warn', area: 'Score Dipping', desc: `Recent sessions average ${Math.round(recentAvg)}% vs ${Math.round(olderAvg)}% earlier. Try shorter focused sessions.`, freq: Math.round(recentAvg) });
+    else patterns.push({ type: 'info', area: 'Steady Practice', desc: `Scores consistent at ~${Math.round(recentAvg)}%. Try harder poses to grow further.`, freq: Math.round(recentAvg) });
 
     document.getElementById('patternCards').innerHTML = patterns.map(p => `
       <div class="pattern-card">
-        <div class="pc-badge ${p.type}">
-          <span class="pc-badge-dot"></span>
-          ${p.type === 'warn' ? 'Recurring Issue' : p.type === 'good' ? 'Positive Trend' : 'Observation'}
-        </div>
+        <div class="pc-badge ${p.type}"><span class="pc-badge-dot"></span>${p.type === 'warn' ? 'Recurring Issue' : p.type === 'good' ? 'Positive Trend' : 'Observation'}</div>
         <div class="pc-area">${p.area}</div>
         <div class="pc-desc">${p.desc}</div>
         <div class="pc-freq">Frequency: ${p.freq}%</div>
-        <div class="pc-freq-bar">
-          <div class="pc-freq-fill ${p.type}" style="width:${p.freq}%"></div>
-        </div>
+        <div class="pc-freq-bar"><div class="pc-freq-fill ${p.type}" style="width:${p.freq}%"></div></div>
       </div>
     `).join('');
   }
 
-  function avg(arr) {
-    return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
-  }
+  function avgArr(arr) { return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0; }
 
   /* ─────────────────────────────────────────
      SESSION HISTORY LIST
   ───────────────────────────────────────── */
   function renderHistory(sessions) {
     if (!sessions.length) return;
-
     document.getElementById('historyBlock').style.display   = 'flex';
     document.getElementById('historyDivider').style.display = 'flex';
     document.getElementById('emptyState').style.display     = 'none';
@@ -311,13 +266,9 @@ import { collection, getDocs, orderBy, query, doc, setDoc, getDoc } from "https:
     document.getElementById('historyList').innerHTML = sessions.map((s, i) => {
       const cls   = s.score >= 75 ? 'good' : s.score >= 55 ? 'fair' : 'needs';
       const label = s.score >= 75 ? `${s.score}% — Good` : s.score >= 55 ? `${s.score}% — Fair` : `${s.score}% — Needs work`;
-      const date  = formatDate(s.timestamp);
       return `
         <div class="history-item">
-          <div>
-            <div class="hi-pose">${s.pose}</div>
-            <div class="hi-date">${date}</div>
-          </div>
+          <div><div class="hi-pose">${s.pose}</div><div class="hi-date">${formatDate(s.timestamp)}</div></div>
           <div class="hi-pill ${cls}">${label}</div>
           <div class="hi-duration">${s.durationStr || formatDuration(s.duration)}</div>
           <button class="hi-expand-btn" onclick="toggleFeedback(${i})">Feedback</button>
@@ -328,18 +279,13 @@ import { collection, getDocs, orderBy, query, doc, setDoc, getDoc } from "https:
   }
 
   window.toggleFeedback = function (i) {
-    const el  = document.getElementById(`hifeed-${i}`);
-    const btn = el.previousElementSibling;
+    const el = document.getElementById(`hifeed-${i}`);
     const open = el.classList.toggle('open');
-    btn.textContent = open ? 'Hide' : 'Feedback';
+    el.previousElementSibling.textContent = open ? 'Hide' : 'Feedback';
   };
 
-  /* ─────────────────────────────────────────
-     FORMATTERS
-  ───────────────────────────────────────── */
   function formatDuration(secs) {
-    const m = Math.floor(secs / 60);
-    const s = secs % 60;
+    const m = Math.floor(secs / 60), s = secs % 60;
     return m > 0 ? `${m}m ${s}s` : `${s}s`;
   }
 
@@ -352,9 +298,7 @@ import { collection, getDocs, orderBy, query, doc, setDoc, getDoc } from "https:
   ───────────────────────────────────────── */
   function initReveal() {
     const obs = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
-      });
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
     }, { threshold: 0.08 });
     document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
   }

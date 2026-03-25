@@ -39,6 +39,7 @@
   align-items: center;
   gap: 38px;
   list-style: none;
+  margin-left: auto;
 }
 .nav-links a {
   font-size: 0.82rem;
@@ -754,81 +755,56 @@
   .mobile-block { display: flex; }
 }
 
-@media (max-width: 768px) {
-  .pf-logout-btn { top: 10px; right: 52px; width: 32px; height: 32px; }
-}
-
-/* ── HAMBURGER ── */
-.nav-hamburger {
-  display: none;
-  flex-direction: column;
-  justify-content: center;
+/* ── Delete Account Button ── */
+.pf-delete-btn {
+  display: inline-flex;
+  align-items: center;
   gap: 5px;
-  width: 36px; height: 36px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 4px;
-  z-index: 201;
-}
-.nav-hamburger span {
-  display: block;
-  height: 1.8px;
-  width: 100%;
-  background: var(--r5);
-  border-radius: 2px;
-  transition: all 0.3s ease;
-  transform-origin: center;
-}
-.nav-hamburger.open span:nth-child(1) { transform: translateY(6.8px) rotate(45deg); }
-.nav-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
-.nav-hamburger.open span:nth-child(3) { transform: translateY(-6.8px) rotate(-45deg); }
-
-.nav-drawer {
-  display: none;
-  position: fixed;
-  top: 66px; right: 0;
-  width: 240px;
-  height: calc(100vh - 66px);
-  background: rgba(251,245,243,0.98);
-  backdrop-filter: blur(20px);
-  border-left: 1px solid var(--border-rose);
-  flex-direction: column;
-  padding: 28px 24px;
-  gap: 4px;
-  z-index: 199;
-  transform: translateX(100%);
-  transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
-  box-shadow: -4px 0 24px rgba(141,94,94,0.10);
-}
-.nav-drawer.open { transform: translateX(0); }
-.nav-drawer a {
-  font-size: 0.88rem;
+  padding: 5px 12px;
+  background: transparent;
+  border: 1px solid rgba(200, 80, 80, 0.28);
+  border-radius: 50px;
+  color: #C87070;
+  font-size: 0.72rem;
+  font-family: inherit;
   font-weight: 600;
-  letter-spacing: 0.10em;
-  text-transform: uppercase;
-  color: var(--text-body);
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(174,124,126,0.10);
-  transition: color var(--tr);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: auto;
+  opacity: 0.7;
 }
-.nav-drawer a:hover { color: var(--r5); }
+.pf-delete-btn:hover {
+  background: rgba(200, 80, 80, 0.07);
+  border-color: rgba(200, 80, 80, 0.50);
+  opacity: 1;
+}
 
-.nav-drawer-overlay {
+/* ── Delete Confirm Button ── */
+.pf-delete-confirm-btn {
+  background: #C85050;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.4rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.pf-delete-confirm-btn:hover { background: #b04040; }
+.pf-delete-confirm-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ── Delete Modal Overlay ── */
+.modal-overlay {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(42,24,24,0.25);
-  z-index: 198;
-  opacity: 0;
-  transition: opacity 0.35s ease;
+  background: rgba(0,0,0,0.55);
+  z-index: 999;
+  align-items: center;
+  justify-content: center;
 }
-.nav-drawer-overlay.open { opacity: 1; }
-
-@media (max-width: 768px) {
-  .nav-links { display: none; }
-  .nav-hamburger { display: flex; }
-  .nav-drawer { display: flex; }
-  .nav-drawer-overlay { display: block; }
-  .pf-logout-btn { top: 10px; right: 52px; width: 32px; height: 32px; }
+.modal-overlay.open {
+  display: flex;
 }

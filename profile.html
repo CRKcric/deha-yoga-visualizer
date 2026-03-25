@@ -106,11 +106,39 @@
           <button type="button" class="pf-clear-btn" onclick="clearProfile()">Clear Data</button>
           <button type="submit" class="btn-gold pf-save-btn">Save Profile</button>
           <div class="pf-saved-msg" id="pfSavedMsg" style="display:none">Profile saved successfully.</div>
-         
+
+          <div style="display:flex; justify-content:flex-end; margin-top:0.5rem;">
+            <button type="button" class="pf-delete-btn" onclick="openDeleteModal()">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+                <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Delete Account
+            </button>
+          </div>
+
         </form>
       </div>
 
     </aside>
+
+    <!-- ── Delete Account Modal ── -->
+    <div class="modal-overlay" id="deleteModal">
+      <div class="modal-box">
+        <div class="modal-icon">
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+            <circle cx="18" cy="18" r="16" stroke="#D98080" stroke-width="1.5"/>
+            <path d="M18 11v8" stroke="#D98080" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="18" cy="24" r="1.2" fill="#D98080"/>
+          </svg>
+        </div>
+        <h3 class="modal-title">Delete Account?</h3>
+        <p class="modal-text">This will permanently delete your account and all session history. This action <strong>cannot be undone</strong>.</p>
+        <div class="modal-actions">
+          <button class="btn-ghost modal-cancel" onclick="closeDeleteModal()">Cancel</button>
+          <button class="modal-confirm pf-delete-confirm-btn" onclick="deleteAccount()">Yes, Delete</button>
+        </div>
+      </div>
+    </div>
 
     <!-- ═══════════════════════════════════════
          RIGHT COLUMN — Stats + History
