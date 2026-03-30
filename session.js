@@ -750,8 +750,11 @@ import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/fir
       videoEl.srcObject = stream;
 
       try {
-        const p = JSON.parse(localStorage.getItem('deha_profile'));
-        confirmedName = p?.username || '';
+        const { db } = await import('./firebase.js');
+        const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js");
+        const { auth } = await import('./firebase.js');
+        const snap = await getDoc(doc(db, 'users', auth.currentUser.uid, 'profile', 'data'));
+        confirmedName = snap.exists() ? (snap.data().username || '') : '';
       } catch (e) { confirmedName = ''; }
 
       const nametag = document.getElementById('cameraNametag');
